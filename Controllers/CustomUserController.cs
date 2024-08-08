@@ -13,14 +13,27 @@ namespace PlantShopAPI.Controllers
     {
         private readonly UserManager<CustomUser> _userManager;
         private readonly SignInManager<CustomUser> _signInManager;
-        private readonly CustomDbContext _context;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public CustomUserController(UserManager<CustomUser> userManager, SignInManager<CustomUser> signInManager,
-            CustomDbContext context)
+        public CustomUserController(UserManager<CustomUser> userManager, SignInManager<CustomUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _context = context;
+            _roleManager = roleManager;
+        }
+
+        [HttpPost("add-role")]
+        public async Task<IActionResult> registerRole(string role, string normalizedName)
+        {
+            var res = await _roleManager.CreateAsync(new IdentityRole
+            {
+                Name = role,
+                NormalizedName = normalizedName
+            });
+            if (res.Succeeded) {
+                return Ok();
+            }
+            return BadRequest();
         }
 
         [HttpPost("add-user")]
@@ -34,9 +47,12 @@ namespace PlantShopAPI.Controllers
                 PasswordHash = reUser.Password
             };
 
+            /*var roleRes = await _roleManager.SetRoleNameAsync(user, reUser.Role);*/
+
             var result = await _userManager.CreateAsync(user, user.PasswordHash!);
+            var roleRes = await _userManager.AddToRoleAsync(user, user.Role!);
             string message = "Registed successfully";
-            if (result.Succeeded)
+            if (result.Succeeded && roleRes.Succeeded)
             {
                 return Ok(message);
             }
@@ -55,6 +71,7 @@ namespace PlantShopAPI.Controllers
             if (signInResult.Succeeded)
             {
                 var user = await _userManager.FindByNameAsync(usrname);
+                var uRole = await _userManager.GetRolesAsync(user);
                 JsonResult json = new JsonResult(new Response
                 {
                     status = true,
@@ -62,7 +79,7 @@ namespace PlantShopAPI.Controllers
                     data = new UserResponse
                     {
                         username = usrname,
-                        role = (user != null ? user.Role : "")
+                        role = uRole.First()
                     }
                 });
                 /*var token = await _userManager.GetAuthenticationTokenAsync(user, );*/

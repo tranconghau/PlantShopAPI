@@ -11,6 +11,7 @@ using PlantShopAPI.Models;
 namespace PlantShopAPI.Controllers
 {
     // [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
@@ -93,7 +94,6 @@ namespace PlantShopAPI.Controllers
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("addProduct")]
-        [Authorize]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
             _context.Product.Add(product);

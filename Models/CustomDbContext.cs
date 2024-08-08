@@ -5,7 +5,7 @@ using PlantShopAPI.Models;
 
 namespace PlantShopAPI.Models
 {
-    public class CustomDbContext : IdentityDbContext<CustomUser>
+    public class CustomDbContext : IdentityDbContext<CustomUser, IdentityRole, string>
     /*public class CustomDbContext : IdentityDbContext<IdentityUser>*/
     {
         public CustomDbContext(DbContextOptions<CustomDbContext> options) : base(options) 

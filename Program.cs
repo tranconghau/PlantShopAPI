@@ -13,10 +13,11 @@ builder.Services.AddAuthorization();
 
 // Activate Identity APIs
 /*builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<CustomDbContext>();*/
-builder.Services.AddIdentityApiEndpoints<CustomUser>().AddEntityFrameworkStores<CustomDbContext>();
+builder.Services.AddIdentityApiEndpoints<CustomUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<CustomDbContext>();
 
 // By default, both cookies and proprietary tokens are activated.
 // Cookies and tokens are issued at login if the useCookies query string parameter in the login endpoint is true.
+
 
 // Add services to the container.
 builder.Services.AddControllers();
