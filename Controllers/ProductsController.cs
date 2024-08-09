@@ -23,7 +23,7 @@ namespace PlantShopAPI.Controllers
         }
 
         // GET: api/Products
-        [HttpGet("getProduct"), Authorize]
+        [HttpGet("api/v1/getProduct"), Authorize]
         public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
         {
             var products = await _context.Product.ToListAsync();
@@ -31,14 +31,14 @@ namespace PlantShopAPI.Controllers
             JsonResult json = new JsonResult(new Response
             {
                 status = true,
-                message = "Logged in successfully",
+                message = "Success",
                 data = products
             });
             return json;
         }
 
         // GET: api/Products/5
-        [HttpGet("getProduct/{id}")]
+        [HttpGet("api/v1/getProduct/{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
             var product = await _context.Product.FindAsync(id);
@@ -62,7 +62,7 @@ namespace PlantShopAPI.Controllers
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("updateProduct/{id}")]
+        [HttpPut("api/v1/updateProduct/{id}")]
         public async Task<IActionResult> PutProduct(int id, Product product)
         {
             if (id != product.Id)
@@ -93,7 +93,7 @@ namespace PlantShopAPI.Controllers
 
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("addProduct")]
+        [HttpPost("api/v1/addProduct")]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
             _context.Product.Add(product);
@@ -103,7 +103,7 @@ namespace PlantShopAPI.Controllers
         }
 
         // DELETE: api/Products/5
-        [HttpDelete("deleteProduct/{id}")]
+        [HttpDelete("api/v1/deleteProduct/{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var product = await _context.Product.FindAsync(id);

@@ -11,6 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthorization();
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowCredentials", builder =>
+    {
+        builder.WithOrigins("http://localhost:4200") // Add accepted domain name
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials();
+    });
+});
+
 // Activate Identity APIs
 /*builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<CustomDbContext>();*/
 builder.Services.AddIdentityApiEndpoints<CustomUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<CustomDbContext>();
@@ -56,6 +67,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors("AllowCredentials");
 
 app.MapControllers();
 

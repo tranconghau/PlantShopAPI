@@ -22,7 +22,7 @@ namespace PlantShopAPI.Controllers
             _roleManager = roleManager;
         }
 
-        [HttpPost("add-role")]
+        [HttpPost("api/v1/add-role")]
         public async Task<IActionResult> registerRole(string role, string normalizedName)
         {
             var res = await _roleManager.CreateAsync(new IdentityRole
@@ -36,7 +36,7 @@ namespace PlantShopAPI.Controllers
             return BadRequest();
         }
 
-        [HttpPost("add-user")]
+        [HttpPost("api/v1/add-user")]
         public async Task<IActionResult> register(RegisterUser reUser)
         {
             var user = new CustomUser
@@ -59,26 +59,27 @@ namespace PlantShopAPI.Controllers
             return BadRequest("Error occured");
         }
 
-        [HttpPost("/user/login")]
-        public async Task<IActionResult> login(string usrname, string pw)
+        [HttpPost("api/v1/login")]
+        public async Task<IActionResult> login([FromBody] UserLogin userLogin)
         {
+            Console.WriteLine("Debug: " + userLogin.username + " " + userLogin.password);
             var signInResult = await _signInManager.PasswordSignInAsync(
-                userName : usrname,
-                password : pw,
+                userName : userLogin.username!,
+                password : userLogin.password!,
                 isPersistent: false,
                 lockoutOnFailure: true);
 
             if (signInResult.Succeeded)
             {
-                var user = await _userManager.FindByNameAsync(usrname);
-                var uRole = await _userManager.GetRolesAsync(user);
+                var user = await _userManager.FindByNameAsync(userLogin.username!);
+                var uRole = await _userManager.GetRolesAsync(user!);
                 JsonResult json = new JsonResult(new Response
                 {
                     status = true,
                     message = "Logged in successfully",
                     data = new UserResponse
                     {
-                        username = usrname,
+                        username = userLogin.username!,
                         role = uRole.First()
                     }
                 });
@@ -88,13 +89,13 @@ namespace PlantShopAPI.Controllers
             return BadRequest("Error occured");
         }
 
-        [HttpPost("/logout")]
+        [HttpPost("api/v1/logout")]
         public async Task logout()
         {
             await _signInManager.SignOutAsync();
         }
 
-        [HttpPost("/remove_user/{usr}")]
+        [HttpPost("api/v1/remove_user/{usr}")]
         public async Task<IActionResult> remove(string usr)
         {
             var user = await _userManager.FindByNameAsync(usr);
