@@ -18,7 +18,8 @@ builder.Services.AddCors(options =>
         builder.WithOrigins("http://localhost:4200") // Add accepted domain name
                .AllowAnyMethod()
                .AllowAnyHeader()
-               .AllowCredentials();
+               .AllowCredentials()
+               .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost");
     });
 });
 
@@ -52,6 +53,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+app.UseCors("AllowCredentials");
 
 // Map Identity routes
 /*app.MapIdentityApi<IdentityUser>();*/
@@ -67,8 +69,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
-app.UseCors("AllowCredentials");
 
 app.MapControllers();
 

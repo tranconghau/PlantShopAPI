@@ -11,7 +11,6 @@ using PlantShopAPI.Models;
 namespace PlantShopAPI.Controllers
 {
     // [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
@@ -38,7 +37,7 @@ namespace PlantShopAPI.Controllers
         }
 
         // GET: api/Products/5
-        [HttpGet("api/v1/getProduct/{id}")]
+        [HttpGet("api/v1/getProduct/{id}"), Authorize]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
             var product = await _context.Product.FindAsync(id);
@@ -62,13 +61,15 @@ namespace PlantShopAPI.Controllers
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("api/v1/updateProduct/{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        [Authorize(Roles = "admin")]
+        [HttpPut("api/v1/updateProduct")]
+        public async Task<IActionResult> PutProduct([FromBody] Product product)
         {
-            if (id != product.Id)
-            {
-                return BadRequest();
-            }
+            /*            if (id != product.Id)
+                        {
+                            return BadRequest();
+                        }*/
+            Console.WriteLine("HAU-TEST");
 
             _context.Entry(product).State = EntityState.Modified;
 
@@ -78,7 +79,7 @@ namespace PlantShopAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductExists(id))
+                if (!ProductExists(product.Id))
                 {
                     return NotFound();
                 }
@@ -93,8 +94,9 @@ namespace PlantShopAPI.Controllers
 
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "admin")]
         [HttpPost("api/v1/addProduct")]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<Product>> PostProduct([FromBody] Product product)
         {
             _context.Product.Add(product);
             await _context.SaveChangesAsync();
@@ -103,6 +105,7 @@ namespace PlantShopAPI.Controllers
         }
 
         // DELETE: api/Products/5
+        [Authorize(Roles = "admin")]
         [HttpDelete("api/v1/deleteProduct/{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {

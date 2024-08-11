@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlantShopAPI.Models;
@@ -22,12 +23,13 @@ namespace PlantShopAPI.Controllers
             _roleManager = roleManager;
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost("api/v1/add-role")]
         public async Task<IActionResult> registerRole(string role, string normalizedName)
         {
             var res = await _roleManager.CreateAsync(new IdentityRole
             {
-                Name = role,
+                Name = role.ToLower(),
                 NormalizedName = normalizedName
             });
             if (res.Succeeded) {
@@ -36,6 +38,20 @@ namespace PlantShopAPI.Controllers
             return BadRequest();
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpPost("api/v1/delete-role")]
+        public async Task<IActionResult> deleteRole(string role)
+        {
+            var roleInstance = await _roleManager.FindByNameAsync(role);
+            var res = await _roleManager.DeleteAsync(roleInstance!);
+            if (res.Succeeded)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Authorize(Roles = "admin")]
         [HttpPost("api/v1/add-user")]
         public async Task<IActionResult> register(RegisterUser reUser)
         {
@@ -43,7 +59,7 @@ namespace PlantShopAPI.Controllers
             {
                 UserName = reUser.Email,
                 Email = reUser.Email,
-                Role = reUser.Role,
+                Role = reUser.Role!.ToLower(),
                 PasswordHash = reUser.Password
             };
 
@@ -80,7 +96,7 @@ namespace PlantShopAPI.Controllers
                     data = new UserResponse
                     {
                         username = userLogin.username!,
-                        role = uRole.First()
+                        role = uRole.First().ToLower(),
                     }
                 });
                 /*var token = await _userManager.GetAuthenticationTokenAsync(user, );*/
@@ -95,6 +111,7 @@ namespace PlantShopAPI.Controllers
             await _signInManager.SignOutAsync();
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost("api/v1/remove_user/{usr}")]
         public async Task<IActionResult> remove(string usr)
         {
